@@ -1,0 +1,72 @@
+BH
+=
+0;
+/*
+<br>
+<textarea cols=20 rows=20 id=k></textarea>
+<br>
+<button id="as">Imageify?</button>
+<br>
+<div id="outp"></div>
+<script>
+	as.onclick = async () => {
+		
+		var pn = await pngFromHTML(k.value)
+		var im = document.createElement("img")
+		im.src=pn;
+		outp.innerHTML=""
+		outp.appendChild(im)
+	}
+</script>
+<script>//*/
+	
+function im(dom) {
+    var f= new XMLSerializer()
+    var seer = f.serializeToString(dom)
+    return "data:image/svg+xml," + 
+        "<svg xmlns='http://www.w3.org/2000/svg' width='"+dom.scrollWidth+
+        "' height='"+dom.scrollHeight+
+        "'><foreignObject width='100%' height='100%' x='0' y='0'>"+seer+
+        "</foreignObject></svg>"
+}
+	
+async function pngFromHTML(html) {
+	return new Promise(async (r,j) => {
+		var dp = new DOMParser()
+		var prs=null;
+		try {
+			prs=dp.parseFromString(k.value,"text/html")
+
+		} catch(e) {
+			alert ("THat's not even valid HTML!")	
+		}
+		if(!prs) {
+			var op = document.createElement("div")
+			op.innerHTML = "<h2>BH</h2><br>AN error happened!!!"
+			j(im(op))
+		}
+		
+		var svg = im(prs);
+		var img = document.createElement("img")
+			img.src=svg;
+			var cn = document.createElement("canvas")
+			var cx = cn.getContext("2d")
+
+			document.body.appendChild(img)
+			img.style.marginLeft="-1239123"
+			img.onload = async ()=>{
+				cn.width=img.clientWidth;
+				cn.height=img.clientHeight
+				cx.drawImage(img,0,0)
+				dt = cn.toDataURL()
+				img.parentElement.removeChild(img)
+				r(dt)
+			}
+			img.onerror = async () => {
+				var op = document.createElement("div")
+				op.innerHTML = "<h2>BH</h2><br>AN error happened!!!"
+				j(im(op))
+			}
+	})
+}
+//</script>
