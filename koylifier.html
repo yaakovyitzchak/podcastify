@@ -1,0 +1,194 @@
+BH
+
+<br>
+<button id="ad">Open!?</button><br>
+<div id="news"></div>
+<script>
+	var docs = []
+	var curTime = 0
+	var lastTime = 0
+	var firstTime = 0
+	var elapsedTime = 0
+	var keys = []
+	var startedRec = false
+	
+	function startTimer() {
+		startedRec = true
+		lastTime = Date.now()
+		firstTime = Date.now()
+		curTime = 0;
+		console.log("STARTED?!")
+	}
+	
+	
+	function addFrame(pl,t) {
+		if(!startedRec) return console.log("TriED?!")
+		curTime = Date.now() - lastTime;
+		lastTime = Date.now();
+		elapsedTime = Date.now() - firstTime
+		docs.push({
+			pl,
+			op:t,
+			curTime,
+			elapsedTime
+		});
+		console.log("DOC tor?!",pl,t)
+	}
+	
+	onkeyup = e => {
+		
+		
+		
+		if(!keys[e.keyCode])
+			keys[e.keyCode] = true
+		else
+			keys[e.keyCode] = false
+		if(startedRec) {
+			addFrame(e.keyCode,keys[e.keyCode])	
+		}
+	}
+	
+	onkeydown = e=> {
+		e.preventDefault()	
+	}
+	
+	ad.onclick = async () => {
+		showDirectoryPicker().then(async dh => {
+			dhh=dh;
+			fls=await getF(dh.entries())
+			var nb = document.createElement("button")
+			news.appendChild(nb)
+			nb.innerHTML = "record audio?!"
+			var isGoing = false
+			
+			var mdr;
+			nb.onclick = async () => {
+				
+				if(isGoing) {
+					
+					console.log("is going ok?",mdr)
+					if(mdr) {
+						isGoing = false;
+						mdr.stop()
+						
+						console.log("what?")
+						nb.innerHTML = "finally stopped.... record again?!"
+					}
+				} else
+				navigator.mediaDevices.getUserMedia(
+					{audio:true}	
+				).then(async stre => {
+					var id = Date.now()
+					var dirh = await dh
+								.getDirectoryHandle(id+"_kayDar",{
+									create:true
+								})
+					isGoing = true
+					window.afh=dirh;
+					mdr = new MediaRecorder(stre)
+					var auds = []
+					ok=auds
+					var audI = auds.length
+					mdr.ondataavailable = async e => {
+						auds.push(e.data)
+						audI = auds.length
+						if(isGoing) {
+							
+							var arb = await e.data.arrayBuffer()
+							var uin = new Uint8Array(arb)
+							var afh = await dirh
+								.getFileHandle(id+"_part_" + audI +"_koyl.webm",{
+									create:true
+								})
+
+							var wrt = await afh.createWritable()
+							console.log("Writing?!",wrta=wrt)
+							await wrt.write(uin);
+							await wrt.close()
+							console.log("OK wrote?!")
+						//	await contin()
+						} else {
+							
+							var superBlobbyPin = e.data/*new Blob([auds],{
+								type: auds[0].type
+							})*/
+							var arb = await superBlobbyPin.arrayBuffer()
+							var uin = new Uint8Array(arb)
+							var afh = await dirh
+								.getFileHandle(id+"_koyl.webm",{
+									create:true
+								})
+
+							var wrt = await afh.createWritable()
+							console.log("writing END?!",wrt)
+							await wrt.write(uin);
+							await wrt.close()
+							//end timer
+							var afh = await dirh
+								.getFileHandle(id+"_frameData.html",{
+									create:true
+								})
+
+							var wrt = await afh.createWritable()
+							console.log("finished writing DOCS?!",wrt)
+							
+							var dcs = JSON.stringify(docs)	
+							await wrt.write("BH" + 
+								"\n=Infinity;\n"+
+								"//<br><script>" + 
+								"if(!window.chawayoosifawayeer)" + 
+								"chawayoosifawayeer = d=>{window.Shaym=d;"
+								+"document.body.innerText+=JSON.stringify(d,4,4)}"
+								+"</"+
+								"script>" + 
+									
+								"<script>\n"+
+								"chawayoosifawayeer(" + 
+									dcs
+								+");\n"+
+								"//</"+"script>"
+							);
+							await wrt.close()
+							startedRec = false
+							console.log("FINISHED awl?!")
+						}
+				//		if(isGoing) 
+					}
+					nb.innerHTML = "starting to begin?!"
+				//	await contin()
+					await mdr.start()
+					startTimer()
+					nb.innerHTML = "OK recording.. Stop?!"
+					async function contin() {
+						console.log("starting")
+						
+						await mdr.start()
+						console.log("started")
+						setTimeout(async () => {
+							
+							if(mdr.state == "inactive")
+								return console.log("Tried to stop, but no");
+							console.log("stopping")
+					//		
+							mdr.stop();
+							
+							console.log("stopped")
+						}, 100)
+					}
+				
+				})
+					
+				
+				
+			}
+		});
+	}
+	
+	async function getF(f) {
+		var fl = []
+		for await(var k of f) {
+			fl.push(k)
+		}
+		return fl
+	}
+</script>

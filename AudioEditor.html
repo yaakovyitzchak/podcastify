@@ -1,0 +1,188 @@
+BH
+<br>
+<button id='op'>Open folder?!</button>
+<br>
+<div id="bin"></div>
+<div id="inOuter"></div><br>
+<div id="clipEditor"></div>
+<div id="finalPreview"></div>
+<br>
+<style>
+	#bin {
+		padding:5px;
+		border:1px solid black;
+		float:left;
+	}
+	#inOuter {
+		float:left;
+		padding:5px;
+	}
+	.binItem {
+		padding:3px;
+		border:1px solid black;
+		background:cyan;
+		display:block;
+	}
+	#clipEditor {
+		padding:3px	
+	}
+</style>
+<script>
+	var gl = {}
+	op.onclick = async () => {
+		gl.dh = await showDirectoryPicker()
+		gl.fls=await gf(gl.dh.values())
+		gl.shtareem = await Promise.all(
+			gl.fls.map(async q=>
+				await new Shtar(q)		   
+			)
+		)
+		
+		gl.shtareem.forEach(async (f)=>{
+			await addToBin(f)
+		})
+		
+		
+		await checkProjectFile(gl.shtareem)
+	};
+	
+	async function checkProjectFile(sh) {
+		var found = sh.find(q=>
+			q.kesser					 
+		)
+		
+		if(found) {
+			//do project stuff
+			return true;
+		} 
+		
+		//make it
+		var fh = await new Shtar(await gl.dh.getFileHandle(
+			"_eekar_awts.html", {create:true}
+		))
+		
+		await fh.update({
+			shtareem: gl.bin
+		})
+		
+		return false;
+	}
+	
+	async function addToBin(sh) {
+		if(!gl.bin)
+			gl.bin = []
+		
+		gl.bin.push(sh)
+		if(!sh.kesser)
+			sh.add("bin")
+	}
+	
+	function Shtar(en) {
+		this.name=en.name;
+		this.handle = en
+		
+		return (async () => {
+			if(en.getFile) {
+				this.file = await en.getFile()
+				this.kind="file"
+			}
+			
+			if(en.kind == "directory") {
+				this.kind="folder"
+				this.files = await gf(en.values())
+				this.shtarim = await Promise.all(
+					this.files.map(async q=>
+						await new Shtar(q)							  
+					)
+				)
+			}
+			
+			this.extension = (() => {
+				var ld = this.name.lastIndexOf(".")
+				if(ld < 0) return ""
+				var rest = this.name.substring(ld)
+				return rest;
+			})()
+			
+			this.awtsExt = (() => {
+				var ld = this.name.lastIndexOf("_")
+				if(ld < 0) return ""
+				var rest = this.name.substring(ld)
+				return rest;
+			})()
+			
+			this.el = (() => {
+				var tm = document.createElement("div")
+				tm.className="binItem"
+				tm.innerHTML = this.name;
+				return tm;
+			})();
+			
+			this.add = (bel) => {
+				var p = document.getElementById(bel)
+				if(!p) return;
+				p.appendChild(this.el);
+			};
+			
+			this.remove = () => {
+				var iof = gl.bin.indexOf(this)
+				if(iof < 0) return;
+				gl.bin.splice(iof,1)
+				if(this.el.parentElement) {
+					this.el.parentElement.removeChild(this.el)	
+				}
+			};
+			
+			if(this.kind == "file") {
+				this.update = async cnt => {
+					var tx = strOrSame(cnt)
+					var wr = await this.handle
+						.createWritable()
+					
+					await wr.write("BH"
+						+"\n/*<br>"
+						+"<style>#inv{display:none}"
+						+".tab{display:inline-block;width:32;height:5;}"
+						+"</style>"
+						+"<span id='inv'>"
+						+"<script>if(!window.awtsmoosify)"
+						+"window.awtsmoosify=d=>{"
+						+"aw=d;document.body.innerHTML+=JSON.stringify(d,0,4)"
+								   
+						+".split('    ').join('<div class=tab>&nbsp;</div>')"
+								   
+						+".split('\\n').join('<br>')}</"+"script>"
+						+"</span>"
+						+"*/=0;\n//<script>"
+						+"awtsmoosify(" + 
+							tx
+						+")"
+						+"</"+"script>"
+					)
+					await wr.close();
+				}
+			}
+			if(this.awtsExt == "_awts.html") {
+				this.kesser = true;
+				
+			}
+			
+			return this;
+		})()
+	}
+	
+	function strOrSame(ob) {
+		var r = ob
+		try {
+			r = JSON.stringify(ob)	
+		} catch(e) {}
+		return r;
+	}
+	async function gf(f) {
+		var l = []
+		for await(var k of f) {
+			l.push(k)	
+		}
+		return l
+	}
+</script>

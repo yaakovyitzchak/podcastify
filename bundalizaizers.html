@@ -1,0 +1,132 @@
+BH
+
+<br>
+<br>
+<button id="ad">Open direct</button>
+<br>
+<button id="ex">Export?!</button><br>
+<div id="th"></div>
+<style>
+	.sl {
+		user-select:none;
+		padding:2px;
+		border:1px solid black;
+		color:black;
+		background:tan;
+	}
+	
+	.sl:hover{
+		background:purple;
+		color:pink;
+		cursor:pointer;	
+	}
+	
+	.sl:active {
+		color:white;
+		background:black;
+	}
+	.sp {
+		background:cyan;	
+	}
+</style>
+<script>
+	var mainH;
+	ad.onclick = async () => {
+		var dr = await showDirectoryPicker();
+		mainH=dr
+		fls = await gt(dr.entries())
+		fls.forEach(f=> {
+			var d = document.createElement("div")
+			d.className="sl"
+			d.innerHTML = f[0]
+			d.onclick = () => {
+				d.fl = f
+				d.selected = !!!d.selected
+				if(d.selected) {
+					d.className = "sl sp"	
+				} else d.className="sl"
+				
+			}
+			th.appendChild(d)
+		})
+	}
+	
+	ex.onclick = async () => {
+		var files = Array.from(th.children)
+		.filter(r=>(r.selected&&r.fl))
+		.map(m=>m.fl)
+		
+		ex.innerHTML = "starting to compiled..."
+		var newc = []
+		files.forEach(async f=> {
+			if(f[1].kind == "directory"){
+				var dirn = await packDir(f[1])
+				newc.push(["directory",dirn])
+			}
+			else {
+				var fl = await packF(f[1])
+				newc.push(["file",fl])
+			}
+			
+		})
+		var compld = newc
+		window.com=compld
+		window.flsz = files
+		
+		var nf =await mainH.getFileHandle("compiled_"+Date.now()+"_.html",{
+			create:true
+			
+		})
+		ex.innerHTML = "compiled, writing now.."
+		var wr = await nf.createWritable()
+		await wr.write(
+			"BH"+
+			"\n=0;"+
+			"\n//<br><script>if(!window.cobAwayled)"+
+			"cobAwayled = d=>{window.wow=d;document.body.innerText+="+
+			"JSON.stringify(d)};</"+"script>\n<script>"+
+			"cobAwayled("+JSON.stringify(compld)+");"
+		)
+		await wr.close()
+		ex.innerHTML = "SAVED compiled files. again?!"
+	};
+	
+	async function packF(fl) {
+		var fr = new FileReader()
+		return new Promise(async (r,j) => {
+			var cont = await fl.getFile()	
+			fr.onload = async () => {
+				r([{name:cont.name,size:cont.size,type:cont.type},fr.result])
+			}
+			fr.readAsDataURL(cont)
+		})
+	}
+	
+	async function packDir(dir) {
+		return new Promise(async (r,j) => {
+			var flz =await gt(dir.entries())
+			var newc = []
+			flz.forEach(async f=> {
+				if(f[1].kind == "directory"){
+					var dirn = await packDir(f[1])
+					newc.push(["directory",dirn])
+				}
+				else {
+					var fl = await packF(f[1])
+					newc.push(["file",fl])
+				}
+
+			})
+			r(newc)
+		})
+	}
+	
+	async function gt(f) {
+		var fl = []
+		
+		for await(var k of f) {
+			fl.push(k)	
+		}
+		return fl
+	}
+</script>
