@@ -2,8 +2,14 @@ BH
 
 <br>
 <button id="ad">Open!?</button><br>
+<input type="checkbox" id="kk"><label for="kk">Play sound as recording</label>
+<audio id="awd" muted=true></audio>
 <div id="news"></div>
 <script>
+	var stream;
+	kk.onchange  = () => {
+		awd.muted =kk.checked
+	};
 	var docs = []
 	var curTime = 0
 	var lastTime = 0
@@ -78,6 +84,12 @@ BH
 				navigator.mediaDevices.getUserMedia(
 					{audio:true}	
 				).then(async stre => {
+					stream = stre;
+					awd.srcObject = stre;
+					awd.play()
+					if(kk.checked) {
+						awd.muted =false	
+					}
 					var id = Date.now()
 					var dirh = await dh
 								.getDirectoryHandle(id+"_kayDar",{
